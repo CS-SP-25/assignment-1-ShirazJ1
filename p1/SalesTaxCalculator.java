@@ -8,18 +8,24 @@ public class SalesTaxCalculator {
         if (stateName.equalsIgnoreCase("Alaska")) {
             // initializing the state object depending on the user input.
             State alaska = new Alaska(stateName);
+            // setting the behavior dynamically once the state is identified
+            alaska.setBehavior(new NoTax());
             // prints the output.
             alaska.showTax(sale);
         }
         else if (stateName.equalsIgnoreCase("Indiana")) {
             // initialzing the Indiana state object to match user's input.
             State indiana = new Indiana(stateName);
+            // setting the behavior dynamically once the state is identified
+            indiana.setBehavior(new SevenPercent());
             // prints the outpu
             indiana.showTax(sale);
         }
         else if (stateName.equalsIgnoreCase("Hawaii")) {
-            // initialzing the Indiana state object to match user's input.
-            State hawaii = new Hawaii(stateName);
+            // initialzing the Hawaii state object to match user's input.
+            Hawaii hawaii = new Hawaii(stateName);
+            // setting the behavior dynamically once the state is identified
+            hawaii.setBehavior(new FourPointFivePercent());
             // prints the output
             hawaii.showTax(sale);
         }
@@ -27,7 +33,6 @@ public class SalesTaxCalculator {
         else {
             throw new Exception("Invalid State");
         }
-
     }
 }
 
@@ -51,15 +56,16 @@ class SevenPercent implements SalesTaxBehavior {
     // to match SevenPercent implementation
     @Override
     public double compute(double value) {
-        return Math.round(value * 0.07);
+        return (value * 0.07);
     }
+
 }
 
 // New 4.5% sale tax
 class FourPointFivePercent implements SalesTaxBehavior {
     @Override
     public double compute(double value) {
-        return Math.round(((value * 0.045) * 100.00)) / 100.0;
+        return (value * 0.045);
     }
 }
 
@@ -67,9 +73,14 @@ class FourPointFivePercent implements SalesTaxBehavior {
 abstract class State {
     // private variable
     private String name;
+    private SalesTaxBehavior taxBehavior;
     // getter
     public String getName() {
         return this.name;
+    }
+
+    public SalesTaxBehavior getBehavior() {
+        return this.taxBehavior;
     }
     //setter
     public void setName(String newName) {
@@ -79,11 +90,20 @@ abstract class State {
     public void showTax(Double value) {
         System.out.println("State Tax");
     }
+
+    public void setBehavior(SalesTaxBehavior behavior) {
+        this.taxBehavior = behavior;
+    }
+
+    public void setNewBehavior(SalesTaxBehavior behavior) {
+        this.taxBehavior = behavior; 
+    }
+
 }
 
 class Alaska extends State {
-    // NoTax behavior to match Alaska's tax rate.
-    SalesTaxBehavior taxBehavior = new NoTax();
+    
+    // tax behavior variable to be set dynamically 
     // constructor
     public Alaska(String name) {
         //sets the state name to the given name
@@ -93,13 +113,17 @@ class Alaska extends State {
     //overrides the showTax function to match the Alaska state class.
     @Override
     public void showTax(Double value) {
-        System.out.println("The sales tax on $" + value + " in " + getName() + " is $" + taxBehavior.compute(value) + ".");
+        System.out.print("The sales tax on $" + value + " in " + getName() + " is ");
+        System.out.printf("$%.2f", getBehavior().compute(value));
+    }
+    // sets the behavior dynamically by calling super setBehavior
+    public void setBehavior(SalesTaxBehavior behavior) {
+        super.setBehavior(behavior);
     }
 }
 
 class Indiana extends State {
     //SevenPercent tax bhavior to match Indiana tax rate.
-    SalesTaxBehavior taxBehavior = new SevenPercent();
     // constructor, sets the name to given name.
     public Indiana(String name) {
         setName(name);
@@ -108,13 +132,18 @@ class Indiana extends State {
     //overrides the showTax function to match Indiana state class.
     @Override
     public void showTax(Double value) {
-        System.out.println("The sales tax on $" + value + " in " + getName() + " is $" + taxBehavior.compute(value) + ".");
+        System.out.print("The sales tax on $" + value + " in " + getName() + " is ");
+        System.out.printf("$%.2f", getBehavior().compute(value));
+    }
+    // dynamically sets the behavior by calling super's set behavior method
+    public void setBehavior(SalesTaxBehavior behavior) {
+        super.setBehavior(behavior);
     }
 }
 
 // adding Hawaii state 
 class Hawaii extends State {
-    SalesTaxBehavior taxBehavior = new FourPointFivePercent();
+
     public Hawaii(String name) {
         setName(name);
     }
@@ -122,6 +151,12 @@ class Hawaii extends State {
     //overriding showTax method to display specific name and tax.
     @Override
     public void showTax(Double value) {
-        System.out.println("The sales tax on $" + value + " in " + getName() + " is $" + taxBehavior.compute(value) + ".");
+        System.out.print("The sales tax on $" + value + " in " + getName() + " is ");
+        System.out.printf("$%.2f", getBehavior().compute(value));
+    }
+
+    // calls the super method to set the behavior dynamically
+    public void setBehavior(SalesTaxBehavior behavior) {
+        super.setBehavior(behavior);
     }
 }
